@@ -1,10 +1,11 @@
-from flask import Flask
+from flask import Flask, current_app
 import os
 from .const import *
 import json
 from .config import load_config
 from .log import setup_logger
 from .crash import handle_crash_report
+import sqlite3
 
 def init_files():
     '''
@@ -29,7 +30,27 @@ def init_files():
     
     os.makedirs(CRASH_REPORT_PATH, exist_ok=True)
         
-    
+def init_databse():
+    '''
+    初始化数据库。
+    '''
+    # 连接数据库
+    conn = sqlite3.connect(current_app.config['database']["file"])
+    cursor = conn.cursor()
+
+    # 执行SQL脚本初始化数据库
+    schema_path = os.path.join(os.path.dirname(__file__), 'schema.sql')
+    with open(schema_path, 'r', encoding=DEFAULT_ENCODING) as f:
+        schema = f.read()
+
+    # 执行SQL脚本
+    cursor.executescript(schema)
+    conn.commit()
+
+    # 关闭数据库连接
+    conn.close()
+
+
 def create_app():
     '''
     应用工厂函数，创建并配置Flask应用实例。
@@ -52,6 +73,10 @@ def create_app():
         code, message = result
         handle_crash_report(code, message)
         raise RuntimeError(f"({code}){message}")
+    
+    # 初始化数据库
+    with app.app_context():
+        init_databse()
 
     # 设置日志记录器
     setup_logger(app)
