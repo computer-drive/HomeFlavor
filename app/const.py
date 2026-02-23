@@ -7,3 +7,6 @@ INSTANCE_CONFIG_PATH = os.path.join("user", "config.json")
 
 # File
 DEFAULT_ENCODING = "utf-8"
+
+# Log
+LOG_PATH = os.path.join("user", "logs")
