@@ -10,3 +10,6 @@ DEFAULT_ENCODING = "utf-8"
 
 # Log
 LOG_PATH = os.path.join("user", "logs")
+
+# CrashReport
+CRASH_REPORT_PATH = os.path.join("user", "crash_report")
