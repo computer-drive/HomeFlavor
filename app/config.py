@@ -21,6 +21,7 @@ def load_config(app: Flask) -> None | tuple[int, str]:
         with open(DEFAULT_CONFIG_PATH, encoding=DEFAULT_ENCODING, mode='r') as f:
             config = json.load(f)
     except FileNotFoundError:
+        # 配置文件未找到，返回错误代码和错误信息
         return (101, "Default configuration file not found.")
     except json.JSONDecodeError:
         return (102, "Default configuration file is not a valid JSON file.")
@@ -32,7 +33,11 @@ def load_config(app: Flask) -> None | tuple[int, str]:
                 prod_config = json.load(f)
                 config.update(prod_config)
     except FileNotFoundError:
-        return (103, "Production configuration file not found.")
+        # 生产环境中配置文件未找到，但不影响应用运行
+        pass
+    except json.JSONDecodeError:
+        return (103, "Production configuration file is not a valid JSON file.")
+        
 
     # 加载实例配置
     try:
@@ -40,9 +45,10 @@ def load_config(app: Flask) -> None | tuple[int, str]:
             instance_config = json.load(f)
             config.update(instance_config)
     except FileNotFoundError:
-        return (104, "Instance configuration file not found.")
+        # 实例配置文件未找到，但不影响应用运行
+        pass
     except json.JSONDecodeError:
-        return (105, "Instance configuration file is not a valid JSON file.")
+        return (104, "Instance configuration file is not a valid JSON file.")
 
 
     # 初始化基本配置
