@@ -9,7 +9,7 @@ if __name__ == '__main__':
     try:
         app = create_app()
     except Exception as e:
-        print(*"Error starting application:")
+        print("Error starting application:")
         traceback.print_exc()
         exit(1)
 
