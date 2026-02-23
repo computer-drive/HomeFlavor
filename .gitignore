@@ -1,0 +1,10 @@
+# Python
+venv/*
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Users
+users/*
+
