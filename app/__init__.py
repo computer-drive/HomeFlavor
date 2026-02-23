@@ -9,32 +9,32 @@ from .crash import handle_crash_report
 def init_files():
     '''
     检查必要的文件和目录是否存在，如果不存在则创建它们。
+    
     Arguments:
         None
     Returns:
         None
     '''
-    # 检查user目录是否存在
-    if not os.path.exists('user'):
-        os.makedirs('user')
 
-    # 检查日志目录是否存在
-    if not os.path.exists(LOG_PATH):
-        os.makedirs(LOG_PATH)
+    
+    
+    os.makedirs('user', exist_ok=True)
+    os.makedirs(LOG_PATH, exist_ok=True)
 
-    # 判断实例配置文件是否存在，如果不存在则创建一个空的配置文件
+    # 判断实例配置文件是否存在，如果不存在则创建它
     if not os.path.exists(INSTANCE_CONFIG_PATH):
         with open(INSTANCE_CONFIG_PATH, 'w') as f:
             json.dump({}, f, indent=4)
 
-    # 判断崩溃报告目录是否存在，如果不存在则创建它
-    if not os.path.exists(CRASH_REPORT_PATH):
-        os.makedirs(CRASH_REPORT_PATH)
+    
+    os.makedirs(CRASH_REPORT_PATH, exist_ok=True)
         
     
 def create_app():
     '''
     应用工厂函数，创建并配置Flask应用实例。
+    可能抛出的异常：
+        Runtime Error: 配置文件加载失败时抛出
     Arguments:
         None
     Returns:
@@ -51,7 +51,7 @@ def create_app():
     if result: # 若加载失败，则返回非None
         code, message = result
         handle_crash_report(code, message)
-        exit(int(code))
+        raise RuntimeError(f"({code}){message}")
 
     # 设置日志记录器
     setup_logger(app)

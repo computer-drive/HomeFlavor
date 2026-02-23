@@ -1,9 +1,18 @@
 from app import create_app
 import os
+import traceback
 
-app = create_app()
+    
 
 if __name__ == '__main__':
+
+    try:
+        app = create_app()
+    except Exception as e:
+        print(*"Error starting application:")
+        traceback.print_exc()
+        exit(1)
+
     host = app.config["server"]["host"]
     port = app.config["server"]["port"]
     debug = app.config["server"]["debug"]
