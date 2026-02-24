@@ -1,8 +1,8 @@
 import sqlite3
-import os
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask import g, current_app
 import json
-
+import os
 class DatabaseConnection:
     '''
     控制数据库连接
@@ -10,8 +10,9 @@ class DatabaseConnection:
     def __init__(self):
         self.connection: sqlite3.Connection = None # type: ignore
         
-        self.accounts = AccountDAO(self.connection)  # 注意：AccountDAO 用的是 db，需要调整
-        self.orders = OrderDAO(self.connection)
+        self.accounts = None
+        self.orders = None
+        self.dishes = None
 
     def connect(self):
         '''
@@ -35,6 +36,11 @@ class DatabaseConnection:
 
         # 启用外键约束
         self.connection.execute("PRAGMA foreign_keys = ON;") # type: ignore
+
+        # 初始化DAO实例
+        self.accounts = AccountDAO(self)
+        self.orders = OrderDAO(self)
+        self.dishes = DishDAO(self)
 
         current_app.logger.info(f"Connected to database: {current_app.config['database']['file']}")
 
@@ -160,15 +166,13 @@ def get_dbconn():
         None
     Returns:
         Database: 数据库连接
-        None: 如果当前请求有数据库连接，则返回None
 
     '''
     if 'db' not in g:
         g.db = DatabaseConnection()
         g.db.connect()
     else:
-        current_app.logger.debug("Can't create a new database connection, because there is already one in this request.")
-        return 
+        current_app.logger.debug("Using existing database connection in this request.")
         
     return g.db
 
@@ -195,22 +199,17 @@ class BaseDAO:
 
 
     def _get_conn(self):
-        '''获取数据库连接（优先用传入的，没有则从请求获取）'''
-        if self.conn:
-            return self.conn
-        # 没有传入连接，从请求上下文中获取
-        return get_dbconn()
+        '''获取数据库连接'''
+        return self.conn
 
     
     def execute(self, sql, params=()):
         '''执行SQL并返回cursor'''
-        conn = self._get_conn()
-        return conn.execute(sql, params) #type: ignore
+        return self.conn.execute(sql, params) #type: ignore
     
     def executemany(self, sql, params_list):
         '''批量执行SQL'''
-        conn = self._get_conn()
-        return conn.executemany(sql, params_list)#type: ignore
+        return self.conn.executemany(sql, params_list)#type: ignore
     
     def fetch_one(self, sql, params=()):
         '''查询单条记录，返回字典'''
@@ -235,8 +234,8 @@ class AccountDAO:
     '''
     控制账户的数据库操作
     '''
-    def __init__(self, conn: Database=None): # type:ignore
-        self.conn = conn or get_db() # 如果没有传入db，则使用当前请求的db  #type: ignore
+    def __init__(self, conn: DatabaseConnection=None): # type:ignore
+        self.conn = conn
     
     def create(self, username:str, password: str, is_admin: bool=False, enabled: bool=True):
         '''
@@ -249,12 +248,14 @@ class AccountDAO:
         Returns:
             int: 新账户的ID
         '''
+        # 生成密码哈希
+        password_hash = generate_password_hash(password)
 
         sql = '''
         INSERT INTO users (username, password, is_admin, enabled)
         VALUES (?, ?, ?, ?)
         '''
-        params = (username, password, int(is_admin), int(enabled))
+        params = (username, password_hash, int(is_admin), int(enabled))
         return self.conn.insert(sql, params)
     
     def auth(self, username: str, password: str):
@@ -268,12 +269,21 @@ class AccountDAO:
             dict: 账户信息字典（包含id, username, is_admin, enabled）
             None: 如果验证失败
         '''
+        # 先根据用户名查询用户
         sql = '''
-        SELECT id, username, is_admin, enabled FROM users
-        WHERE username = ? AND password = ?
+        SELECT id, username, password, is_admin, enabled FROM users
+        WHERE username = ?
         '''
-        params = (username, password)
-        return self.conn.fetch_one(sql, params)
+        params = (username,)
+        
+        user = self.conn.fetch_one(sql, params)
+        
+        # 验证密码
+        if user and check_password_hash(user['password'], password):
+            # 移除密码字段后返回
+            del user['password']
+            return user
+        return None
     
     def get_user(self, user_id: int = 0, username: str = ""):
         '''
@@ -317,8 +327,8 @@ class OrderDAO:
     '''
     控制订单的数据库操作
     '''
-    def __init__(self, conn: Database=None): # type:ignore
-        self.conn = conn or get_dbconn() # 如果没有传入db，则使用当前请求的db  #type: ignore
+    def __init__(self, conn: DatabaseConnection=None): # type:ignore
+        self.conn = conn
     
     def create(self, 
         table_num: int,
@@ -389,15 +399,13 @@ class DishDAO:
         '''
         初始化菜品DAO
         Args:
-            conn: 数据库连接，None则自动获取
+            conn: 数据库连接
         '''
         self.conn = conn
     
     def _get_db(self):
         '''获取数据库连接'''
-        if self.conn:
-            return self.conn
-        return get_dbconn()
+        return self.conn
     
     # ==================== 基础增删改查 ====================
     
@@ -422,7 +430,7 @@ class DishDAO:
         Returns:
             int: 新菜品的ID
         '''
-        db = self._get_db()
+        db = self.conn
         
         # 处理options_json
         if options_json is None:
@@ -439,7 +447,7 @@ class DishDAO:
         
         return db.insert(sql, params)
     
-    def get_by_id(self, dish_id: int) -> Optional[Dict]:
+    def get_by_id(self, dish_id: int) -> dict:
         '''
         根据ID获取菜品
         Args:
@@ -447,7 +455,7 @@ class DishDAO:
         Returns:
             dict: 菜品信息，不存在返回None
         '''
-        db = self._get_db()
+        db = self.conn
         
         dish = db.fetch_one('SELECT * FROM menu WHERE id = ?', (dish_id,))
         if dish:
@@ -470,7 +478,7 @@ class DishDAO:
         Returns:
             bool: 是否更新成功
         '''
-        db = self._get_db()
+        db = self.conn
         
         # 构建动态SQL
         fields = []
@@ -508,7 +516,7 @@ class DishDAO:
         Returns:
             bool: 是否删除成功
         '''
-        db = self._get_db()
+        db = self.conn
         db.execute('DELETE FROM menu WHERE id = ?', (dish_id,))
         db.commit()
         return True
@@ -526,7 +534,7 @@ class DishDAO:
     
     # ==================== 查询方法 ====================
     
-    def get_all(self, include_unavailable: bool = False) -> List[Dict]:
+    def get_all(self, include_unavailable: bool = False) -> list[dict]:
         '''
         获取所有菜品
         Args:
@@ -534,7 +542,7 @@ class DishDAO:
         Returns:
             list: 菜品列表
         '''
-        db = self._get_db()
+        db = self.conn
         
         if include_unavailable:
             dishes = db.fetch_all('SELECT * FROM menu ORDER BY category, id')
@@ -555,7 +563,7 @@ class DishDAO:
         
         return dishes
     
-    def get_by_category(self, category: str) -> List[Dict]:
+    def get_by_category(self, category: str) -> list[dict]:
         '''
         获取指定分类的菜品
         Args:
@@ -563,7 +571,7 @@ class DishDAO:
         Returns:
             list: 菜品列表
         '''
-        db = self._get_db()
+        db = self.conn
         
         dishes = db.fetch_all('''
             SELECT * FROM menu 
@@ -578,13 +586,13 @@ class DishDAO:
         
         return dishes
     
-    def get_categories(self) -> List[str]:
+    def get_categories(self) -> list[str]:
         '''
         获取所有分类
         Returns:
             list: 分类名称列表
         '''
-        db = self._get_db()
+        db = self.conn
         
         rows = db.fetch_all('''
             SELECT DISTINCT category FROM menu 
@@ -594,7 +602,7 @@ class DishDAO:
         
         return [row['category'] for row in rows]
     
-    def get_menu_by_category(self) -> Dict[str, List[Dict]]:
+    def get_menu_by_category(self) :
         '''
         获取按分类组织的菜单（用于前端展示）
         Returns:
@@ -632,7 +640,7 @@ class DishDAO:
         Returns:
             list: 匹配的菜品列表
         '''
-        db = self._get_db()
+        db = self.conn
         
         dishes = db.fetch_all('''
             SELECT * FROM menu 
@@ -644,7 +652,7 @@ class DishDAO:
     
     # ==================== 批量操作 ====================
     
-    def create_batch(self, dishes: list[dict]) -> List[int]:
+    def create_batch(self, dishes: list[dict]) -> list[int]:
         '''
         批量创建菜品
         Args:
@@ -684,7 +692,7 @@ class DishDAO:
         Returns:
             list: [{'category': '热菜', 'count': 10}, ...]
         '''
-        db = self._get_db()
+        db = self.conn
         
         return db.fetch_all('''
             SELECT category, COUNT(*) as count 
@@ -702,7 +710,7 @@ class DishDAO:
         Returns:
             dict: {'min': 最小价格, 'max': 最大价格, 'avg': 平均价格}
         '''
-        db = self._get_db()
+        db = self.conn
         
         if category:
             sql = 'SELECT MIN(price) as min, MAX(price) as max, AVG(price) as avg FROM menu WHERE category = ? AND is_available = 1'
@@ -719,7 +727,31 @@ class DishDAO:
                 'avg': result['avg'] / 100
             }
         return {'min': 0, 'max': 0, 'avg': 0}
-        
+    
+def init_test_data():
+    db = get_dbconn()
 
+    db.accounts.create("admin", "123456", True, True)
+    db.accounts.create("waiter1", "w123456", False, True)
+    db.accounts.create("banned1", "c123456", False, False)
 
+    db.close()
+
+def reset_db():
+    choice = input("Are you sure you want to reset the database? (y/n) ")
+    if choice.lower() != 'y':
+        print("Reset database operation cancelled.")
+        return
+    else:
+        db = get_dbconn()
         
+        if os.environ.get("ENVIRONMENT") == "production":
+            print("You can't reset the database in production environment.")
+
+        db.execute("DELETE FROM menu")
+        db.execute("DELETE FROM accounts")
+        db.execute("DELETE FROM orders")
+
+        db.commit()
+
+    

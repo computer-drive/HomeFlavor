@@ -5,6 +5,7 @@ import json
 from .config import load_config
 from .log import setup_logger
 from .crash import handle_crash_report
+from .database import init_test_data, reset_db
 import sqlite3
 import importlib
 
@@ -82,13 +83,24 @@ def create_app():
     # 设置日志记录器
     setup_logger(app)
 
+    # 注册CLI命令
+    @app.cli.command("init-test-data")
+    def init_test_data_cli():
+        init_test_data()
+    
+    @app.cli.command("reset-db")
+    def reset_db_cli():
+        reset_db()
+
     # 注册蓝图
     blueprints = [
-        "index",
+        "basic",
+        "auth"
     ]
     for blueprint_name in blueprints:
         blueprint_module = importlib.import_module(f".{blueprint_name}", __name__)
         app.register_blueprint(blueprint_module.bp)
+        app.logger.info(f"Blueprint {blueprint_name} registered.")
 
 
     return app
