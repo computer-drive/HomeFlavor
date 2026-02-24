@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} -首页</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body style="overflow-y: hidden;">
+    <div class="mobile-container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>{{title}}</h1>
+            <div>
+                <span id="userName" style="margin-right: 12px;">???</span>
+                <button id="logoutBtn" class="btn" style="background: #dc3545; color: white;">退出</button>
+            </div>
+        </div>
+
+        <!-- 主要内容 -->
+        <div style="font-size: 24px; margin-bottom: 24px;">
+            订单
+        </div>
+        <div class="grid-2">
+            
+            <a href="/order/create" class="card text-center" style="text-decoration: none;">
+                <svg width="36" height="36" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.883 3.007 12 3a1 1 0 0 1 .993.883L13 4v7h7a1 1 0 0 1 .993.883L21 12a1 1 0 0 1-.883.993L20 13h-7v7a1 1 0 0 1-.883.993L12 21a1 1 0 0 1-.993-.883L11 20v-7H4a1 1 0 0 1-.993-.883L3 12a1 1 0 0 1 .883-.993L4 11h7V4a1 1 0 0 1 .883-.993L12 3l-.117.007Z" fill="#212121"/></svg>
+                <div style="font-size: 18px; color:black">新建订单</div>
+            </a>
+
+            <a href="/order" class="card text-center" style="text-decoration: none;">
+               <svg width="36" height="36" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13.75 2h-3.5a2.25 2.25 0 0 0-2.236 2H6.25A2.25 2.25 0 0 0 4 6.25v13.5A2.25 2.25 0 0 0 6.25 22h11.5A2.25 2.25 0 0 0 20 19.75V6.25A2.25 2.25 0 0 0 17.75 4h-1.764a2.25 2.25 0 0 0-2.236-2Zm-3.5 1.5h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Zm7.03 5.22a.75.75 0 0 1 0 1.06l-2 2a.75.75 0 0 1-1.06 0l-1-1a.75.75 0 1 1 1.06-1.06l.47.47 1.47-1.47a.75.75 0 0 1 1.06 0Zm0 6.56-2 2a.75.75 0 0 1-1.06 0l-1-1a.75.75 0 1 1 1.06-1.06l.47.47 1.47-1.47a.75.75 0 1 1 1.06 1.06ZM7 10.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75ZM7.75 15h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Z" fill="#212121"/></svg>
+                <div style="font-size: 18px; color:black">所有订单</div>
+            </a>
+            
+        </div>
+
+        <div style="font-size: 24px; margin-bottom: 24px;">
+            管理
+        </div>
+        <div class="grid-2">
+            <a href="/dashboard" class="card text-center" style="text-decoration: none;">
+                <svg width="36" height="36" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.5 3A1.5 1.5 0 0 0 3 5.915v7.335A3.75 3.75 0 0 0 6.75 17h4.5v2.5h-3.5a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-3.5V17h4.5A3.75 3.75 0 0 0 21 13.25V5.915A1.5 1.5 0 0 0 20.5 3h-17Z" fill="#212121"/></svg>
+                <div style="font-size: 18px; color:black">后厨看板</div>
+            </a>
+            <a href="/admin/" class="card text-center" style="text-decoration: none;">
+                <svg width="36" height="36" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.012 2.25c.734.008 1.465.093 2.182.253a.75.75 0 0 1 .582.649l.17 1.527a1.384 1.384 0 0 0 1.927 1.116l1.401-.615a.75.75 0 0 1 .85.174 9.792 9.792 0 0 1 2.204 3.792.75.75 0 0 1-.271.825l-1.242.916a1.381 1.381 0 0 0 0 2.226l1.243.915a.75.75 0 0 1 .272.826 9.797 9.797 0 0 1-2.204 3.792.75.75 0 0 1-.848.175l-1.407-.617a1.38 1.38 0 0 0-1.926 1.114l-.169 1.526a.75.75 0 0 1-.572.647 9.518 9.518 0 0 1-4.406 0 .75.75 0 0 1-.572-.647l-.168-1.524a1.382 1.382 0 0 0-1.926-1.11l-1.406.616a.75.75 0 0 1-.849-.175 9.798 9.798 0 0 1-2.204-3.796.75.75 0 0 1 .272-.826l1.243-.916a1.38 1.38 0 0 0 0-2.226l-1.243-.914a.75.75 0 0 1-.271-.826 9.793 9.793 0 0 1 2.204-3.792.75.75 0 0 1 .85-.174l1.4.615a1.387 1.387 0 0 0 1.93-1.118l.17-1.526a.75.75 0 0 1 .583-.65c.717-.159 1.45-.243 2.201-.252ZM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="#212121"/></svg>
+                <div style="font-size: 18px; color:black">后台管理</div>
+            </a>
+        </div>
+
+        <a href="/order/serve"><button id="serveBtn" class="btn" style="background: var(--primary); color: white; width: 100%; margin-bottom: 16px; font-size: 24px">出餐</button></a>
+        <!-- 今日概况 -->
+        <div class="card">
+            <h3>今日概况</h3>
+            <div id="todayStats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                <div class="text-center">
+                    <div style="font-size: 24px;" id="orderCount">???</div>
+                    <div style="color: var(--text-light);">今日订单</div>
+                </div>
+                <div class="text-center">
+                    <div style="font-size: 24px;" id="totalSales">???</div>
+                    <div style="color: var(--text-light);">营业额</div>
+                </div>
+            </div>
+        </div>
+
+
+
+        
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+    
+        // 加载今日统计
+        fetch('/api/stats/today')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('orderCount').textContent = data.order_count;
+                document.getElementById('totalSales').textContent = '¥' + (data.total_sales / 100).toFixed(2);
+            });
+        
+        // 加载用户信息
+        fetch('/api/user/current')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('userName').textContent = data.real_name;
+            });
+            
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            fetch('/api/auth/logout', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/login';
+                    }
+                });
+        });
+
+
+    </script>
+</body>
+</html>

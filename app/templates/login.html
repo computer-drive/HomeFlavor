@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - 登录</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>{{title}}</h1>
+        </div>
+
+        <!-- 主要内容 -->
+        <div >
+            <div style="text-align: center; font-size: 32px; margin-bottom: 24px;">登录</div>
+            
+            <div style="font-size: 24px; font-weight: 350;">用户名</div>
+            <input type="text" id="usernameInput" class="form-input" placeholder="请输入用户名" />
+
+            
+            <div style="font-size: 24px; font-weight: 350; margin-top: 8px;">密码</div>
+            <input type="password" id="passwordInput" class="form-input" placeholder="请输入密码" />
+            
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; margin-top: 16px;">
+                <div id="errorInfo" style="color: red;"></div>
+                <button id="loginBtn" class="btn" style="font-size: 24px; padding: 8px 48px 8px 48px;" >登录</button>
+            </div>
+        </div>
+
+        
+
+    </div>
+
+    <script>
+        const loginBtn = document.getElementById('loginBtn');
+        const usernameInput = document.getElementById('usernameInput');
+        const passwordInput = document.getElementById('passwordInput');
+        console.log(loginBtn, usernameInput, passwordInput);
+        loginBtn.addEventListener('click', () => {
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+            
+            // 验证用户名和密码是否为空
+            if (!username || !password) {
+                document.getElementById('errorInfo').textContent = '请输入用户名和密码';
+                return;
+            }
+
+            // fetch
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "username": username,
+                    "password": password
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data["type"] == "success") {
+                        window.location.href = '/';
+                    } else  if (data["type"] == "input_error"){
+                        document.getElementById('errorInfo').textContent = data.message || '用户或密码错误';
+                    } else {
+                        document.getElementById('errorInfo').textContent = data.message || '登录失败';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('errorInfo').textContent = '登录失败，请稍后重试';
+                });
+
+        });
+    </script>
+</body>
+</html>
