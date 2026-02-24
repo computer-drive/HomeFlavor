@@ -6,5 +6,6 @@
     },
     "database": {
         "file": "user/database.db"
-    }
+    },
+    "title": "HomeFlavor"
 }

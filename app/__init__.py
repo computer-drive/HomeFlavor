@@ -6,6 +6,7 @@ from .config import load_config
 from .log import setup_logger
 from .crash import handle_crash_report
 import sqlite3
+import importlib
 
 def init_files():
     '''
@@ -65,7 +66,7 @@ def create_app():
     init_files()
 
     # 创建flask应用实例
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder="templates")
 
     # 加载配置
     result = load_config(app)
@@ -82,7 +83,13 @@ def create_app():
     setup_logger(app)
 
     # 注册蓝图
-    ## TODO
+    blueprints = [
+        "index",
+    ]
+    for blueprint_name in blueprints:
+        blueprint_module = importlib.import_module(f".{blueprint_name}", __name__)
+        app.register_blueprint(blueprint_module.bp)
+
 
     return app
 
