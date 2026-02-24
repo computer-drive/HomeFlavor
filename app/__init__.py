@@ -1,4 +1,4 @@
-from flask import Flask, current_app
+from flask import Flask, current_app, request, redirect
 import os
 from .const import *
 import json
@@ -8,6 +8,7 @@ from .crash import handle_crash_report
 from .database import init_test_data, reset_db
 import sqlite3
 import importlib
+from .auth import check_login
 
 def init_files():
     '''
@@ -97,6 +98,18 @@ def create_app():
         "basic",
         "auth"
     ]
+
+    # 设置session 的secret_key
+    app.config['SECRET_KEY'] = os.urandom(24)  # 生成随机密钥
+
+    # before_request 检查登录
+    @app.before_request
+    def before_request():
+
+        if not check_login(request.path):
+            return redirect("/login")
+        
+
     for blueprint_name in blueprints:
         blueprint_module = importlib.import_module(f".{blueprint_name}", __name__)
         app.register_blueprint(blueprint_module.bp)

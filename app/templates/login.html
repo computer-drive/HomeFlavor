@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} - 登录</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -47,7 +47,7 @@
             
             // 验证用户名和密码是否为空
             if (!username || !password) {
-                document.getElementById('errorInfo').textContent = '请输入用户名和密码';
+                document.getElementById('errorInfo').textContent = '用户名或密码不能为空';
                 return;
             }
 
@@ -66,10 +66,16 @@
                 .then(data => {
                     if (data["type"] == "success") {
                         window.location.href = '/';
-                    } else  if (data["type"] == "input_error"){
-                        document.getElementById('errorInfo').textContent = data.message || '用户或密码错误';
-                    } else {
-                        document.getElementById('errorInfo').textContent = data.message || '登录失败';
+                    } else  if (data["type"] == "auth_error"){
+                        document.getElementById('errorInfo').textContent = '用户或密码错误';
+                    } else if (data["type"] == "none_error"){
+                        document.getElementById('errorInfo').textContent = '用户名或密码不能为空';
+                        
+                    } else if(data["type" == "duplicate_error"]) {
+                        window.location.href = '/';
+                    } 
+                    else {
+                        document.getElementById('errorInfo').textContent =  '登录失败';
                     }
                 })
                 .catch(error => {

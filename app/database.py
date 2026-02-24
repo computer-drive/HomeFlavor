@@ -10,7 +10,7 @@ class DatabaseConnection:
     def __init__(self):
         self.connection: sqlite3.Connection = None # type: ignore
         
-        self.accounts = None
+        self.users = None
         self.orders = None
         self.dishes = None
 
@@ -38,7 +38,7 @@ class DatabaseConnection:
         self.connection.execute("PRAGMA foreign_keys = ON;") # type: ignore
 
         # 初始化DAO实例
-        self.accounts = AccountDAO(self)
+        self.users = UsersDAO(self)
         self.orders = OrderDAO(self)
         self.dishes = DishDAO(self)
 
@@ -230,7 +230,7 @@ class BaseDAO:
         cursor = self.execute(sql, params)
         return cursor.lastrowid #type: ignore
 
-class AccountDAO:
+class UsersDAO:
     '''
     控制账户的数据库操作
     '''
@@ -256,7 +256,9 @@ class AccountDAO:
         VALUES (?, ?, ?, ?)
         '''
         params = (username, password_hash, int(is_admin), int(enabled))
-        return self.conn.insert(sql, params)
+        user_id = self.conn.insert(sql, params)
+        self.conn.commit()
+        return user_id
     
     def auth(self, username: str, password: str):
         '''
@@ -277,6 +279,7 @@ class AccountDAO:
         params = (username,)
         
         user = self.conn.fetch_one(sql, params)
+        current_app.logger.debug(f"查询用户：{user}")
         
         # 验证密码
         if user and check_password_hash(user['password'], password):
@@ -731,9 +734,10 @@ class DishDAO:
 def init_test_data():
     db = get_dbconn()
 
-    db.accounts.create("admin", "123456", True, True)
-    db.accounts.create("waiter1", "w123456", False, True)
-    db.accounts.create("banned1", "c123456", False, False)
+    db.users.create("admin", "123456", True, True)
+    db.users.create("waiter1", "w123456", False, True)
+    db.users.create("banned1", "c123456", False, False)
+
 
     db.close()
 
@@ -749,7 +753,7 @@ def reset_db():
             print("You can't reset the database in production environment.")
 
         db.execute("DELETE FROM menu")
-        db.execute("DELETE FROM accounts")
+        db.execute("DELETE FROM users")
         db.execute("DELETE FROM orders")
 
         db.commit()

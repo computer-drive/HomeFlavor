@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, render_template, current_app, session, redirect
 
 bp = Blueprint('index', __name__)
 
@@ -9,5 +9,8 @@ def index():
 
 @bp.route('/login')
 def login():
+    # 判断是否登录
+    if 'id' in session:
+        return redirect("/")
     return render_template('login.html',
                            title=current_app.config["title"])

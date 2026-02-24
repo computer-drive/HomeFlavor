@@ -13,3 +13,9 @@ LOG_PATH = os.path.join("user", "logs")
 
 # CrashReport
 CRASH_REPORT_PATH = os.path.join("user", "crash_report")
+
+UNLOGIN_WHITELIST = [
+    "/login",
+    "/api/auth/login",
+    "/static/"
+]
