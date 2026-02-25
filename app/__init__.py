@@ -96,7 +96,9 @@ def create_app():
     # 注册蓝图
     blueprints = [
         "basic",
-        "auth"
+        "auth",
+        "user",
+        "stats"
     ]
 
     # 设置session 的secret_key
