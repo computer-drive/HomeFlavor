@@ -71,9 +71,11 @@
                     } else if (data["type"] == "none_error"){
                         document.getElementById('errorInfo').textContent = '用户名或密码不能为空';
                         
-                    } else if(data["type" == "duplicate_error"]) {
+                    } else if(data["type"] == "duplicate_error") {
                         window.location.href = '/';
-                    } 
+                    } else if(data["type"] == "banned_error") {
+                        document.getElementById('errorInfo').textContent =  '用户未启用';
+                    }
                     else {
                         document.getElementById('errorInfo').textContent =  '登录失败';
                     }
