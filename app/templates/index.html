@@ -2,105 +2,483 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}} -首页</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>{{title}} - 首页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ff6b35;
+            --primary-light: #fff0e8;
+            --primary-dark: #e55a2a;
+            --text-dark: #212529;
+            --text-light: #6c757d;
+            --bg-light: #f8f9fa;
+            --border-color: #e9ecef;
+            --card-shadow: 0 6px 16px rgba(0, 0, 0, 0.03);
+            --card-shadow-hover: 0 14px 24px rgba(255, 107, 53, 0.08);
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            overflow-y: hidden;
+        }
+
+        .mobile-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #f0eae4;
+        }
+
+        .mobile-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .mobile-container::-webkit-scrollbar-track {
+            background: #f5f0eb;
+        }
+        .mobile-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 20px;
+        }
+
+        /* 头部样式 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0 24px 0;
+            background: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #userName {
+            font-size: 16px;
+            color: var(--text-light);
+            background: var(--primary-light);
+            padding: 6px 12px;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+
+        #userName:hover {
+            background: #ffe0d0;
+        }
+
+        .btn {
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #dc3545;
+            color: white;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* 标题栏样式 */
+        .section-title {
+            font-size: 24px;
+    
+            color: var(--text-dark);
+            margin: 24px 0 16px 0;
+            letter-spacing: -0.3px;
+        }
+
+        /* 网格布局 */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        /* 卡片样式 - 带有动画效果 */
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: var(--primary);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* 卡片头部（标题+刷新按钮） */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: -0.01em;
+        }
+
+        .header-svg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            
+            cursor: pointer;
+        }
+
+        
+
+        .header-svg svg {
+            display: block;
+            width: 18px;
+            height: 18px;
+        }
+
+        .header-svg svg path {
+            fill: var(--primary);
+            
+        }
+
+        /* 功能卡片内文字和图标 */
+        .card svg {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 12px;
+            transition: transform 0.25s ease;
+        }
+
+        
+
+        .card svg path {
+            fill: var(--primary);
+            transition: fill 0.2s;
+        }
+
+        .card div[style*="font-size: 18px"] {
+            font-size: 18px !important;
+            color: var(--text-dark) !important;
+            font-weight: 500;
+        }
+
+        /* 今日概况统计卡片 */
+        #todayStats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: var(--bg-light);
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .stat-item:hover {
+            background: var(--primary-light);
+            transform: scale(1.02);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 出餐按钮特殊样式 */
+        #serveBtn {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            margin: 24px 0 16px 0;
+            font-size: 24px;
+            padding: 16px;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 12px 18px -10px rgba(255, 107, 53, 0.4);
+        }
+
+        #serveBtn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 25px -8px rgba(255, 107, 53, 0.6);
+        }
+
+        #serveBtn:active {
+            transform: translateY(0) scale(1);
+        }
+
+        /* 退出按钮微调 */
+        #logoutBtn {
+            background: #dc3545;
+            color: white;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+        }
+
+        #logoutBtn:hover {
+            background: #c82333;
+        }
+
+        /* 加载中状态动画 */
+        .loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid var(--primary-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 480px) {
+            .mobile-container {
+                padding: 12px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .card-header h3 {
+                font-size: 24px;
+            }
+            
+            .grid-2 {
+                gap: 12px;
+            }
+            
+            .card {
+                padding: 18px;
+            }
+            
+            .stat-number {
+                font-size: 28px;
+            }
+        }
+    </style>
 </head>
-<body style="overflow-y: hidden;">
+<body>
     <div class="mobile-container">
         <!-- 头部 -->
         <div class="header">
             <h1>{{title}}</h1>
-            <div>
-                <span id="userName" style="margin-right: 12px;">???</span>
-                <button id="logoutBtn" class="btn" style="background: #dc3545; color: white;">退出</button>
+            <div class="user-info">
+                <span id="userName">???</span>
+                <button id="logoutBtn" class="btn">退出</button>
             </div>
         </div>
 
-        <!-- 主要内容 -->
-        <div style="font-size: 24px; margin-bottom: 24px;">
-            订单
-        </div>
-        <div class="grid-2">
-            
-            <a href="/order/create" class="card text-center" style="text-decoration: none;">
-                <svg width="36" height="36" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.883 3.007 12 3a1 1 0 0 1 .993.883L13 4v7h7a1 1 0 0 1 .993.883L21 12a1 1 0 0 1-.883.993L20 13h-7v7a1 1 0 0 1-.883.993L12 21a1 1 0 0 1-.993-.883L11 20v-7H4a1 1 0 0 1-.993-.883L3 12a1 1 0 0 1 .883-.993L4 11h7V4a1 1 0 0 1 .883-.993L12 3l-.117.007Z" fill="#212121"/></svg>
-                <div style="font-size: 18px; color:black">新建订单</div>
-            </a>
-
-            <a href="/order" class="card text-center" style="text-decoration: none;">
-               <svg width="36" height="36" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13.75 2h-3.5a2.25 2.25 0 0 0-2.236 2H6.25A2.25 2.25 0 0 0 4 6.25v13.5A2.25 2.25 0 0 0 6.25 22h11.5A2.25 2.25 0 0 0 20 19.75V6.25A2.25 2.25 0 0 0 17.75 4h-1.764a2.25 2.25 0 0 0-2.236-2Zm-3.5 1.5h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Zm7.03 5.22a.75.75 0 0 1 0 1.06l-2 2a.75.75 0 0 1-1.06 0l-1-1a.75.75 0 1 1 1.06-1.06l.47.47 1.47-1.47a.75.75 0 0 1 1.06 0Zm0 6.56-2 2a.75.75 0 0 1-1.06 0l-1-1a.75.75 0 1 1 1.06-1.06l.47.47 1.47-1.47a.75.75 0 1 1 1.06 1.06ZM7 10.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75ZM7.75 15h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Z" fill="#212121"/></svg>
-                <div style="font-size: 18px; color:black">所有订单</div>
-            </a>
-            
-        </div>
-
-        <div style="font-size: 24px; margin-bottom: 24px;">
-            管理
-        </div>
-        <div class="grid-2">
-            <a href="/dashboard" class="card text-center" style="text-decoration: none;">
-                <svg width="36" height="36" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.5 3A1.5 1.5 0 0 0 3 5.915v7.335A3.75 3.75 0 0 0 6.75 17h4.5v2.5h-3.5a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-3.5V17h4.5A3.75 3.75 0 0 0 21 13.25V5.915A1.5 1.5 0 0 0 20.5 3h-17Z" fill="#212121"/></svg>
-                <div style="font-size: 18px; color:black">后厨看板</div>
-            </a>
-            <a href="/admin/" class="card text-center" style="text-decoration: none;">
-                <svg width="36" height="36" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.012 2.25c.734.008 1.465.093 2.182.253a.75.75 0 0 1 .582.649l.17 1.527a1.384 1.384 0 0 0 1.927 1.116l1.401-.615a.75.75 0 0 1 .85.174 9.792 9.792 0 0 1 2.204 3.792.75.75 0 0 1-.271.825l-1.242.916a1.381 1.381 0 0 0 0 2.226l1.243.915a.75.75 0 0 1 .272.826 9.797 9.797 0 0 1-2.204 3.792.75.75 0 0 1-.848.175l-1.407-.617a1.38 1.38 0 0 0-1.926 1.114l-.169 1.526a.75.75 0 0 1-.572.647 9.518 9.518 0 0 1-4.406 0 .75.75 0 0 1-.572-.647l-.168-1.524a1.382 1.382 0 0 0-1.926-1.11l-1.406.616a.75.75 0 0 1-.849-.175 9.798 9.798 0 0 1-2.204-3.796.75.75 0 0 1 .272-.826l1.243-.916a1.38 1.38 0 0 0 0-2.226l-1.243-.914a.75.75 0 0 1-.271-.826 9.793 9.793 0 0 1 2.204-3.792.75.75 0 0 1 .85-.174l1.4.615a1.387 1.387 0 0 0 1.93-1.118l.17-1.526a.75.75 0 0 1 .583-.65c.717-.159 1.45-.243 2.201-.252ZM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="#212121"/></svg>
-                <div style="font-size: 18px; color:black">后台管理</div>
-            </a>
-        </div>
-
-        <a href="/order/serve"><button id="serveBtn" class="btn" style="background: var(--primary); color: white; width: 100%; margin-bottom: 16px; font-size: 24px">出餐</button></a>
-        <!-- 今日概况 -->
-        <div class="card">
-            <h3>今日概况</h3>
-            <div id="todayStats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
-                <div class="text-center">
-                    <div style="font-size: 24px;" id="orderCount">???</div>
-                    <div style="color: var(--text-light);">今日订单</div>
-                </div>
-                <div class="text-center">
-                    <div style="font-size: 24px;" id="totalSales">???</div>
-                    <div style="color: var(--text-light);">营业额</div>
-                </div>
-            </div>
-        </div>
-
-
-
+        <!-- 订单部分标题 -->
+        <div class="section-title">订单</div>
         
+        <!-- 订单功能卡片 -->
+        <div class="grid-2">
+            <a href="/order/create" class="card text-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.883 3.007 12 3a1 1 0 0 1 .993.883L13 4v7h7a1 1 0 0 1 .993.883L21 12a1 1 0 0 1-.883.993L20 13h-7v7a1 1 0 0 1-.883.993L12 21a1 1 0 0 1-.993-.883L11 20v-7H4a1 1 0 0 1-.993-.883L3 12a1 1 0 0 1 .883-.993L4 11h7V4a1 1 0 0 1 .883-.993L12 3l-.117.007Z" fill="#ff6b35"/>
+                </svg>
+                <div style="font-size: 18px; color: #212529;">新建订单</div>
+            </a>
+
+            <a href="/order" class="card text-center">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.75 2h-3.5a2.25 2.25 0 0 0-2.236 2H6.25A2.25 2.25 0 0 0 4 6.25v13.5A2.25 2.25 0 0 0 6.25 22h11.5A2.25 2.25 0 0 0 20 19.75V6.25A2.25 2.25 0 0 0 17.75 4h-1.764a2.25 2.25 0 0 0-2.236-2Zm-3.5 1.5h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Zm7.03 5.22a.75.75 0 0 1 0 1.06l-2 2a.75.75 0 0 1-1.06 0l-1-1a.75.75 0 1 1 1.06-1.06l.47.47 1.47-1.47a.75.75 0 0 1 1.06 0Zm0 6.56-2 2a.75.75 0 0 1-1.06 0l-1-1a.75.75 0 1 1 1.06-1.06l.47.47 1.47-1.47a.75.75 0 1 1 1.06 1.06ZM7 10.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75ZM7.75 15h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Z" fill="#ff6b35"/>
+                </svg>
+                <div style="font-size: 18px; color: #212529;">所有订单</div>
+            </a>
+        </div>
+
+        <!-- 管理部分标题 -->
+        <div class="section-title">管理</div>
+        
+        <!-- 管理功能卡片 -->
+        <div class="grid-2">
+            <a href="/dashboard" class="card text-center">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.5 3A1.5 1.5 0 0 0 3 5.915v7.335A3.75 3.75 0 0 0 6.75 17h4.5v2.5h-3.5a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-3.5V17h4.5A3.75 3.75 0 0 0 21 13.25V5.915A1.5 1.5 0 0 0 20.5 3h-17Z" fill="#ff6b35"/>
+                </svg>
+                <div style="font-size: 18px; color: #212529;">后厨看板</div>
+            </a>
+            <a href="/admin/" class="card text-center">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.012 2.25c.734.008 1.465.093 2.182.253a.75.75 0 0 1 .582.649l.17 1.527a1.384 1.384 0 0 0 1.927 1.116l1.401-.615a.75.75 0 0 1 .85.174 9.792 9.792 0 0 1 2.204 3.792.75.75 0 0 1-.271.825l-1.242.916a1.381 1.381 0 0 0 0 2.226l1.243.915a.75.75 0 0 1 .272.826 9.797 9.797 0 0 1-2.204 3.792.75.75 0 0 1-.848.175l-1.407-.617a1.38 1.38 0 0 0-1.926 1.114l-.169 1.526a.75.75 0 0 1-.572.647 9.518 9.518 0 0 1-4.406 0 .75.75 0 0 1-.572-.647l-.168-1.524a1.382 1.382 0 0 0-1.926-1.11l-1.406.616a.75.75 0 0 1-.849-.175 9.798 9.798 0 0 1-2.204-3.796.75.75 0 0 1 .272-.826l1.243-.916a1.38 1.38 0 0 0 0-2.226l-1.243-.914a.75.75 0 0 1-.271-.826 9.793 9.793 0 0 1 2.204-3.792.75.75 0 0 1 .85-.174l1.4.615a1.387 1.387 0 0 0 1.93-1.118l.17-1.526a.75.75 0 0 1 .583-.65c.717-.159 1.45-.243 2.201-.252ZM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="#ff6b35"/>
+                </svg>
+                <div style="font-size: 18px; color: #212529;">后台管理</div>
+            </a>
+        </div>
+
+        <!-- 出餐按钮 -->
+        <a href="/order/serve" style="text-decoration: none;">
+            <button id="serveBtn">出餐</button>
+        </a>
+
+        <!-- 今日概况卡片 -->
+        <div class="card" style="margin-top: 8px;">
+            <div class="card-header">
+                <h3>今日概况</h3>
+                <div class="header-svg" id="refreshButton">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="m14.712 2.289-.087-.078a1 1 0 0 0-1.327.078l-.078.087a.999.999 0 0 0 .078 1.326l1.299 1.297H8.999l-.24.004A6.997 6.997 0 0 0 2 11.993c0 1.445.438 2.788 1.189 3.899a.999.999 0 0 0 1.626-1.163l-.135-.218A4.997 4.997 0 0 1 9 6.998h5.595l-1.297 1.297-.078.087a.999.999 0 0 0 1.492 1.326l3.006-3.003.077-.087a.999.999 0 0 0-.078-1.326l-3.005-3.003Zm6.075 5.771A.999.999 0 0 0 19 8.677c0 .209.064.402.172.561a4.997 4.997 0 0 1-4.17 7.75H9.414l1.294-1.29.083-.096a1 1 0 0 0-.006-1.23l-.077-.088-.095-.084a1.001 1.001 0 0 0-1.232.006l-.088.078-3.005 3.003-.083.095a1 1 0 0 0 .006 1.231l.077.087 3.005 3.003.095.084a1 1 0 0 0 1.397-1.41l-.077-.087-1.304-1.303h5.596l.24-.003a6.997 6.997 0 0 0 5.546-10.927v.003Z" fill="#ff6b35"/>
+                    </svg>
+                </div>
+            </div>
+            <div id="todayStats">
+                <div class="stat-item">
+                    <div class="stat-number" id="orderCount">???</div>
+                    <div class="stat-label">今日订单</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalSales">???</div>
+                    <div class="stat-label">营业额</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="/static/js/app.js"></script>
     <script>
-    
-        // 加载今日统计
-        fetch('/api/stats/today')
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('orderCount').textContent = data.order_count;
-                document.getElementById('totalSales').textContent = '¥' + (data.total_sales / 100).toFixed(2);
-            });
-        
+        // 获取DOM元素
+        const orderCountElement = document.getElementById('orderCount');
+        const totalSalesElement = document.getElementById('totalSales');
+        const refreshButton = document.getElementById('refreshButton');
+        const userNameElement = document.getElementById('userName');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // 加载今日统计数据
+        function loadTodayStats() {
+            orderCountElement.textContent = '加载中';
+            totalSalesElement.textContent = '加载中';
+
+            fetch('/api/stats/today')
+                .then(res => res.json())
+                .then(data => {
+                    
+                    
+                    // 更新数据
+                    orderCountElement.textContent = data["order_count"];
+                    totalSalesElement.textContent = '¥' + (data["total_sales"] / 100).toFixed(2);
+                })
+                .catch(error => {
+                    
+                    orderCountElement.textContent = '加载失败';
+                    totalSalesElement.textContent = '加载失败';
+                });
+        }
+
+        // 刷新按钮点击事件
+        refreshButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            loadTodayStats();
+            
+            
+        });
+
         // 加载用户信息
         fetch('/api/user/current')
             .then(res => res.json())
             .then(data => {
-                document.getElementById('userName').textContent = data.real_name;
+                if (data["data"]) {
+                    const isAdmin = data["data"]["is_admin"] == 1;
+                    const adminTag = isAdmin ? "（管理员）" : "";
+                    userNameElement.textContent = adminTag + data["data"]["username"];
+                }
+            })
+            .catch(error => {
+                console.error('加载用户信息失败:', error);
+                userNameElement.textContent = '未登录';
             });
             
         // 退出登录
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        logoutBtn.addEventListener('click', () => {
             fetch('/api/auth/logout', { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.success) {
+                    if (data["type"] == "success") {
                         window.location.href = '/login';
                     }
+                })
+                .catch(error => {
+                    console.error('退出失败:', error);
                 });
         });
 
-
+        // 初始加载统计数据
+        loadTodayStats();
     </script>
 </body>
 </html>
