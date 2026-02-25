@@ -15,7 +15,12 @@ def setup_logger(app: Flask):
         Logger: 配置好的日志记录器实例。
     '''
     # 设置日志记录器
-    logger = logging.getLogger(__name__)
+
+    logger = app.logger
+    
+    # 清除默认的处理器
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
 
     # 设置日志级别
     level = logging.DEBUG if app.config["DEBUG"] else logging.INFO
