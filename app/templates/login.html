@@ -4,8 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} - 登录</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/common.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 登录页面专用样式 */
+        .login-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .login-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 32px;
+            letter-spacing: -0.5px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            color: var(--text-dark);
+            background: white;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 32px;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .login-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 16px rgba(255, 107, 53, 0.2);
+        }
+        
+        .login-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body>
     <div class="mobile-container">
@@ -14,33 +97,32 @@
             <h1>{{title}}</h1>
         </div>
 
-        <!-- 主要内容 -->
-        <div >
-            <div style="text-align: center; font-size: 32px; margin-bottom: 24px;">登录</div>
+        <!-- 登录表单 -->
+        <div class="login-container">
+            <div class="login-title">登录</div>
             
-            <div style="font-size: 24px; font-weight: 350;">用户名</div>
-            <input type="text" id="usernameInput" class="form-input" placeholder="请输入用户名" />
+            <div class="form-group">
+                <label class="form-label">用户名</label>
+                <input type="text" id="usernameInput" class="form-input" placeholder="请输入用户名" />
+            </div>
 
+            <div class="form-group">
+                <label class="form-label">密码</label>
+                <input type="password" id="passwordInput" class="form-input" placeholder="请输入密码" />
+            </div>
             
-            <div style="font-size: 24px; font-weight: 350; margin-top: 8px;">密码</div>
-            <input type="password" id="passwordInput" class="form-input" placeholder="请输入密码" />
-            
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; margin-top: 16px;">
-                <div id="errorInfo" style="color: red;"></div>
-                <button id="loginBtn" class="btn" style="font-size: 24px; padding: 8px 48px 8px 48px;" >登录</button>
+            <div class="form-actions">
+                <div id="errorInfo" class="error-message"></div>
+                <button id="loginBtn" class="login-btn">登录</button>
             </div>
         </div>
-
-        
-
     </div>
 
     <script>
         const loginBtn = document.getElementById('loginBtn');
         const usernameInput = document.getElementById('usernameInput');
         const passwordInput = document.getElementById('passwordInput');
-        console.log(loginBtn, usernameInput, passwordInput);
+        
         loginBtn.addEventListener('click', () => {
             const username = usernameInput.value;
             const password = passwordInput.value;
@@ -51,7 +133,7 @@
                 return;
             }
 
-            // fetch
+            // 发送登录请求
             fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
@@ -66,24 +148,28 @@
                 .then(data => {
                     if (data["type"] == "success") {
                         window.location.href = '/';
-                    } else  if (data["type"] == "auth_error"){
+                    } else if (data["type"] == "auth_error"){
                         document.getElementById('errorInfo').textContent = '用户或密码错误';
                     } else if (data["type"] == "none_error"){
                         document.getElementById('errorInfo').textContent = '用户名或密码不能为空';
-                        
-                    } else if(data["type"] == "duplicate_error") {
+                    } else if (data["type"] == "duplicate_error") {
                         window.location.href = '/';
-                    } else if(data["type"] == "banned_error") {
-                        document.getElementById('errorInfo').textContent =  '用户未启用';
-                    }
-                    else {
-                        document.getElementById('errorInfo').textContent =  '登录失败';
+                    } else if (data["type"] == "banned_error") {
+                        document.getElementById('errorInfo').textContent = '用户未启用';
+                    } else {
+                        document.getElementById('errorInfo').textContent = '登录失败';
                     }
                 })
                 .catch(error => {
                     document.getElementById('errorInfo').textContent = '登录失败，请稍后重试';
                 });
-
+        });
+        
+        // 回车键登录
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loginBtn.click();
+            }
         });
     </script>
 </body>
