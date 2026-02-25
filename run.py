@@ -20,5 +20,9 @@ if __name__ == '__main__':
     if app.config["env"] == "production" and debug:
         app.logger.warning("Debug mode is enabled in production environment.")
 
+    app.logger.info(f"Application started on {host}:{port} in {app.config['env']} environment.")
+
     app.run(host=host, port=port, debug=debug)
+    
+    app.logger.info("Application stopped.")
 
