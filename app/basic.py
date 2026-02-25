@@ -14,3 +14,8 @@ def login():
         return redirect("/")
     return render_template('login.html',
                            title=current_app.config["title"])
+
+@bp.route("/order/create")
+def order_create():
+    return render_template('order_create.html',
+                           title=current_app.config["title"])
